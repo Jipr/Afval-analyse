@@ -1,22 +1,30 @@
+'''
+Author: Jip Rasenberg
+Date: 27-3-2023
+Graduation project: Afval analyse automatisatie
+Company: Noria
+
+'''
+
+#Libraries#---------------------------------------------
 import pandas as pd
-import openpyxl
-import numpy
 import cv2
 from ultralytics import YOLO
 import supervision as sv
 
 
+#Global variables#--------------------------------------
+START = sv.Point(320,0) # Start point counting line
+END = sv.Point(320, 480) # End poinst counting line
+
+
+#Functions on or off (True of False)#-------------------
 video_show = True
 
-def connect_cam():
-    # define a video capture object
-    vid = cv2.VideoCapture(1)
-    vid.set(3, 640)
-    vid.set(4, 480)
-    return vid
 
-def release_cam(vid):
-    vid.release()
+
+#Functions#---------------------------------------------
+def release_cam():
     if video_show == True:
         # Destroy all the windows
         cv2.destroyAllWindows()
@@ -37,6 +45,14 @@ def create_box_annotator():
     text_scale=0.5
     )
     return box_annotator
+
+def create_lineZone_annotator(line_zone):
+    line_annotator = sv.LineZoneAnnotator(
+        thickness=2,
+        text_thickness=1,
+        text_scale=0.5
+    )
+    return line_annotator 
     
 
 def create_labels(model, detections):
@@ -48,29 +64,31 @@ def create_labels(model, detections):
     return labels
 
 
+#Main code#-------------------------------------------
+
 while(True):
-    vid = connect_cam # Connect to camera
-    ret, frame = vid.read() # Capture the video frame
-    
     model = YOLO("Test.pt") #Trained model / path to local file
-    
-    box_annotator = create_box_annotator 
+    line_counter  = sv.LineZone(start=START, end=END)
+
+    line_annotator = create_lineZone_annotator(line_counter)
+    box_annotator = create_box_annotator()
 
     for result in model.track(source=1, show=True, stream=True): # Detect frame by frame
         frame = result.orig_img 
         detections = sv.Detections.from_yolov8(result)
         if result.boxes.id is not None:
             detections.tracker_id = result.boxes.id.cpu().numpy().astype(int)
-            
+
         labels = create_labels(model,detections)
         frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
-
-
+    
+        line_counter.trigger(detections=detections)
+        line_annotator.annotate(frame=frame, line_counter=line_counter)
 
         if video_show == True: # Display the resulting frame
-            cv2.imshow('Litter ditection', frame)     
+            cv2.imshow('Litter ditection', frame)   
         if cv2.waitKey(1) & 0xFF == ord('q'): # Quit script button
-            release_cam(vid)
+            release_cam()
             break
 
 
