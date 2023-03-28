@@ -11,7 +11,7 @@ import pandas as pd
 import cv2
 from ultralytics import YOLO
 import supervision as sv
-
+import numpy
 
 #Global variables#--------------------------------------
 START = sv.Point(320,0) # Start point counting line
@@ -34,8 +34,7 @@ def commit_to_dataBase(object_class):
     a = 10
     b = 23
     c = 55
-    f = pd.DataFrame([[a], [b], [c]],
-                    index=['Class 1', 'Class 2', 'Class 3'], columns=['Amount'])
+    f = pd.DataFrame([[a], [b], [c]], index=['Class 1', 'Class 2', 'Class 3'], columns=['Amount'])
     f.to_excel('OSPAR_Test.xlsx', sheet_name='First_try')
 
 def create_box_annotator():
@@ -66,14 +65,17 @@ def create_labels(model, detections):
 
 #Main code#-------------------------------------------
 
+def new_func():
+    return True
+
 while(True):
-    model = YOLO("Test.pt") #Trained model / path to local file
+    model = YOLO("yolov8l.pt") #Trained model / path to local file
     line_counter  = sv.LineZone(start=START, end=END)
 
     line_annotator = create_lineZone_annotator(line_counter)
     box_annotator = create_box_annotator()
 
-    for result in model.track(source=1, show=True, stream=True): # Detect frame by frame
+    for result in model.track(source=0, show=new_func(), stream=True): # Detect frame by frame
         frame = result.orig_img 
         detections = sv.Detections.from_yolov8(result)
         if result.boxes.id is not None:
@@ -82,7 +84,7 @@ while(True):
         labels = create_labels(model,detections)
         frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
     
-        line_counter.trigger(detections=detections)
+        line_counter.trigger(detections=detections) 
         line_annotator.annotate(frame=frame, line_counter=line_counter)
 
         if video_show == True: # Display the resulting frame
