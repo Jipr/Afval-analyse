@@ -20,7 +20,7 @@ END = sv.Point(320, 480) # End poinst counting line
 
 #Functions on or off (True of False)#-------------------
 video_show = True
-
+detect = True
 
 
 #Functions#---------------------------------------------
@@ -68,14 +68,14 @@ def create_labels(model, detections):
 def new_func():
     return True
 
-while(True):
+while(detect):
     model = YOLO("yolov8l.pt") #Trained model / path to local file
     line_counter  = sv.LineZone(start=START, end=END)
 
     line_annotator = create_lineZone_annotator(line_counter)
     box_annotator = create_box_annotator()
 
-    for result in model.track(source=0, show=new_func(), stream=True): # Detect frame by frame
+    for result in model.track(source=0, show=new_func(), stream=False): # Detect frame by frame
         frame = result.orig_img 
         detections = sv.Detections.from_yolov8(result)
         if result.boxes.id is not None:
@@ -88,9 +88,11 @@ while(True):
         line_annotator.annotate(frame=frame, line_counter=line_counter)
 
         if video_show == True: # Display the resulting frame
-            cv2.imshow('Litter ditection', frame)   
+            cv2.imshow('Litter ditection', frame)  
+             
         if cv2.waitKey(1) & 0xFF == ord('q'): # Quit script button
             release_cam()
+            detect = False
             break
 
 
