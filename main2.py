@@ -1,17 +1,53 @@
-import cv2
+'''
+Author: Jip Rasenberg
+Date: 30-3-2023
+Graduation project: Afval analyse automatisatie
+Company: Noria
 
+'''
+
+#Libraries#---------------------------------------------
+import cv2
+import pandas as pd
+import xlrd
 from ultralytics import YOLO
 import supervision as sv
 
 #Global variables#--------------------------------------
+xlrd.xlsx.ensure_elementtree_imported(False, None)
+xlrd.xlsx.Element_has_iter = True
+workbook = xlrd.open_workbook('OSPAR_Test.xlsx')
+worksheet = workbook.sheet_by_index(-1)
+cell = worksheet.cell(1, 2)
+value = cell.value
+print("Value is:", value)
+sheet_number = int(value + 1)
+
 LINE_START = sv.Point(320, 0)
 LINE_END = sv.Point(320, 480)
-object1_id = 41 # Object ID of: cup
-object2_id = 39 # Object ID of: bottle
-object3_id = 3 # Object ID of:
-object4_id = 4 # Object ID of:
-object5_id = 5 # Object ID of:
 
+#Objects ID's 
+object1_id = 41 # Object ID of: cup
+object1_name = 'Cup'
+object2_id = 39 # Object ID of: bottle
+object2_name = 'Bottle'
+object3_id = 3 # Object ID of:
+object3_name = 'Object 3'
+object4_id = 4 # Object ID of:
+object4_name = 'Object 4'
+object5_id = 5 # Object ID of:
+object5_name = 'Object 5'
+
+
+#Functions#---------------------------------------------
+def commit_to_dataBase(object1_count,object2_count,object3_count,object4_count,object5_count):
+    f = pd.DataFrame([[object1_count], [object2_count], [object3_count], [object4_count], [object5_count]], index=[object1_name, object2_name, object3_name, object4_name, object5_name], columns=['Amount'])
+    
+  
+    with pd.ExcelWriter('OSPAR_Test.xlsx', engine="openpyxl", mode='a') as writer:  
+        f.at[object1_name, 'Sheet number'] = sheet_number
+        f.to_excel(writer, sheet_name= f'Sheet{sheet_number}')
+        
 
 def create_labels(model, detections):
     labels = [
@@ -22,6 +58,7 @@ def create_labels(model, detections):
     return labels
     
 
+#Class#---------------------------------------------
 class object_line_counter():
     def __init__(self,class_id_number,line_counter):
         self.class_id_number = class_id_number
@@ -41,9 +78,10 @@ class object_line_counter():
         return count_in,count_out
 
 
+#Main function#-------------------------------------------
 def main():
 
-    #Initialisation 
+    #Initialisation --------------------------------------
     line_counter = sv.LineZone(start=LINE_START, end=LINE_END)
     line_counter1 = sv.LineZone(start=LINE_START, end=LINE_END)
     line_counter2 = sv.LineZone(start=LINE_START, end=LINE_END)
@@ -54,7 +92,7 @@ def main():
     line_annotator = sv.LineZoneAnnotator(thickness=2, text_thickness=1, text_scale=0.5)
     box_annotator = sv.BoxAnnotator(thickness=2,text_thickness=1,text_scale=0.5)
 
-    # Create class objects
+    # Create class objects ------------------------------
     object1 = object_line_counter(object1_id, line_counter1)
     object2 = object_line_counter(object2_id, line_counter2)
     object3 = object_line_counter(object3_id, line_counter3)
@@ -95,6 +133,7 @@ def main():
         cv2.imshow("yolov8", frame)
 
         if (cv2.waitKey(30) == 27):
+            commit_to_dataBase(object1_in,object2_in,object3_in,object4_in,object5_in)
             break
 
 
