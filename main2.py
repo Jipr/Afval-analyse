@@ -34,7 +34,7 @@ class object_line_counter():
         if result.boxes.id is not None:
             detections.tracker_id = result.boxes.id.cpu().numpy().astype(int)
 
-        detections = detections[(detections.class_id == self.class_id_number)]
+        detections = detections[detections.class_id == self.class_id_number]
         self.line_counter.trigger(detections=detections)
         count_in = self.line_counter.in_count
         count_out = self.line_counter.out_count
@@ -75,15 +75,15 @@ def main():
 
         frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
 
-        detections = detections[(detections.class_id != 1)]
+        detections = detections[detections.class_id != 0]
         line_counter.trigger(detections=detections)
         line_annotator.annotate(frame=frame, line_counter=line_counter)
 
         print('object1_in',object1_in, 'object1_out',object1_out)
-        print('object2_in',object2_in, 'object1_out',object2_out)
-        print('object3_in',object3_in, 'object1_out',object3_out)
-        print('object4_in',object4_in, 'object1_out',object4_out)
-        print('object5_in',object5_in, 'object1_out',object5_out)
+        print('object2_in',object2_in, 'object2_out',object2_out)
+        print('object3_in',object3_in, 'object3_out',object3_out)
+        print('object4_in',object4_in, 'object4_out',object4_out)
+        print('object5_in',object5_in, 'object5_out',object5_out)
 
         cv2.imshow("yolov8", frame)
 
