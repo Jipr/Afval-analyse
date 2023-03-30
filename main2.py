@@ -5,15 +5,14 @@ Graduation project: Afval analyse automatisatie
 Company: Noria
 
 '''
-
-#Libraries#---------------------------------------------
+#Libraries#-------------------------------------------------------
 import cv2
 import pandas as pd
 import xlrd
 from ultralytics import YOLO
 import supervision as sv
 
-#Global variables#--------------------------------------
+#Global variables#------------------------------------------------
 xlrd.xlsx.ensure_elementtree_imported(False, None)
 xlrd.xlsx.Element_has_iter = True
 workbook = xlrd.open_workbook('OSPAR_Test.xlsx')
@@ -26,7 +25,7 @@ sheet_number = int(value + 1)
 LINE_START = sv.Point(320, 0)
 LINE_END = sv.Point(320, 480)
 
-#Objects ID's 
+#Objects ID's
 object1_id = 41 # Object ID of: cup
 object1_name = 'Cup'
 object2_id = 39 # Object ID of: bottle
@@ -39,7 +38,7 @@ object5_id = 5 # Object ID of:
 object5_name = 'Object 5'
 
 
-#Functions#---------------------------------------------
+#Functions#-------------------------------------------------------
 def commit_to_dataBase(object1_count,object2_count,object3_count,object4_count,object5_count):
     f = pd.DataFrame([[object1_count], [object2_count], [object3_count], [object4_count], [object5_count]], index=[object1_name, object2_name, object3_name, object4_name, object5_name], columns=['Amount'])
     
@@ -58,7 +57,7 @@ def create_labels(model, detections):
     return labels
     
 
-#Class#---------------------------------------------
+#Class#------------------------------------------------------------
 class object_line_counter():
     def __init__(self,class_id_number,line_counter):
         self.class_id_number = class_id_number
@@ -78,10 +77,9 @@ class object_line_counter():
         return count_in,count_out
 
 
-#Main function#-------------------------------------------
+#Main function#----------------------------------------------------
 def main():
-
-    #Initialisation --------------------------------------
+    #Initialisation -----------------------------------------------
     line_counter = sv.LineZone(start=LINE_START, end=LINE_END)
     line_counter1 = sv.LineZone(start=LINE_START, end=LINE_END)
     line_counter2 = sv.LineZone(start=LINE_START, end=LINE_END)
@@ -92,37 +90,41 @@ def main():
     line_annotator = sv.LineZoneAnnotator(thickness=2, text_thickness=1, text_scale=0.5)
     box_annotator = sv.BoxAnnotator(thickness=2,text_thickness=1,text_scale=0.5)
 
-    # Create class objects ------------------------------
+    # Create class objects ----------------------------------------
     object1 = object_line_counter(object1_id, line_counter1)
     object2 = object_line_counter(object2_id, line_counter2)
     object3 = object_line_counter(object3_id, line_counter3)
     object4 = object_line_counter(object4_id, line_counter4)
     object5 = object_line_counter(object5_id, line_counter5)
 
-    model = YOLO("yolov8l.pt")
+    model = YOLO("yolov8l.pt") #Load YOLOv8 model 
+
+
 
     for result in model.track(source=0, show=True, stream=True, agnostic_nms=True):
         
         frame = result.orig_img
 
-        #Detect al objects
-        detections = sv.Detections.from_yolov8(result)
-        detections = detections[detections.class_id != 0]
-        if result.boxes.id is not None:
-            detections.tracker_id = result.boxes.id.cpu().numpy().astype(int)
-        labels = create_labels(model,detections)
+        #Detect al objects-----------------------------------------
+        detections = sv.Detections.from_yolov8(result) #Get object detections from result
+        detections = detections[detections.class_id != 0] #Dont show first ID class human (Delete)
+        if result.boxes.id is not None: #If nothing is detected in frame
+            detections.tracker_id = result.boxes.id.cpu().numpy().astype(int) 
+        labels = create_labels(model,detections) #Create labels  
 
+        #Detect specific objects-----------------------------------
         object1_in,object1_out = object1.detections(result)
         object2_in,object2_out = object2.detections(result)
         object3_in,object3_out = object3.detections(result)
         object4_in,object4_out = object4.detections(result)
         object5_in,object5_out = object5.detections(result)
 
+        #Show boxes and line counter--------------------------------
         frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
-
         
         line_counter.trigger(detections=detections)
         line_annotator.annotate(frame=frame, line_counter=line_counter)
+
 
         print('object1_in',object1_in, 'object1_out',object1_out)
         print('object2_in',object2_in, 'object2_out',object2_out)
@@ -132,7 +134,7 @@ def main():
 
         cv2.imshow("yolov8", frame)
 
-        if (cv2.waitKey(30) == 27):
+        if (cv2.waitKey(30) == 27): #If ESC is pressed, the counters get uploaded to excel and script shuts down
             commit_to_dataBase(object1_in,object2_in,object3_in,object4_in,object5_in)
             break
 
