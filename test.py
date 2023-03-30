@@ -15,6 +15,14 @@ ZONE_POLYGON = np.array([
 ])
 
 
+def create_labels(model, detections):
+    labels = [
+        f"# {tracker_id}{model.model.names[class_id]} {confidence:0.2f}"
+        for _, confidence, class_id, tracker_id
+        in detections 
+    ]
+    return labels
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="YOLOv8 live")
     parser.add_argument(
@@ -58,17 +66,14 @@ def main():
 
         result = model(frame, agnostic_nms=True)[0]
         detections = sv.Detections.from_yolov8(result)
-        labels = [
-            f"{model.model.names[class_id]} {confidence:0.2f}"
-            for _, confidence, class_id, _
-            in detections
-        ]
+        detections = detections[(detections.class_id != 60) & (detections.class_id != 0)]
+        labels = create_labels(model,detections)
         frame = box_annotator.annotate(
             scene=frame, 
             detections=detections, 
             labels=labels
         )
-
+        
         zone.trigger(detections=detections)
         frame = zone_annotator.annotate(scene=frame)      
         
