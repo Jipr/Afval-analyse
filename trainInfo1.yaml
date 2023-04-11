@@ -1,0 +1,12 @@
+
+path: C:\Users\Jip Rasenberg\Noria\Noria Internship - Jip Rasenberg\2. Working Folder\5. Code\1. Repository\Afval-analyse\Drijfvuil detectie.v1i.yolov8 #dataset root dir
+train: train\images # train images (relative to 'path')
+val: valid\ímages # valid images (relative to 'path')
+
+#Classes
+names:
+    0: Drankblikjes
+    1: Drankflessen < 1/2 liter
+    2: Plastic folies of stukken daarvan 2.5 - 50 cm
+    3: Snoep snack en chips verpakkingen
+    4: Voedselverpakkingen

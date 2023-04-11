@@ -26,16 +26,16 @@ LINE_START = sv.Point(320, 0)
 LINE_END = sv.Point(320, 480)
 
 #Objects ID's
-object1_id = 41 # Object ID of: cup
-object1_name = 'Cup'
-object2_id = 39 # Object ID of: bottle
-object2_name = 'Bottle'
-object3_id = 3 # Object ID of:
-object3_name = 'Object 3'
-object4_id = 4 # Object ID of:
-object4_name = 'Object 4'
-object5_id = 5 # Object ID of:
-object5_name = 'Object 5'
+object1_id = 0 # Object ID of: Drankblikjes
+object1_name = 'Drankblikjes'
+object2_id = 1 # Object ID of: Drankflessen < 1/2 liter
+object2_name = 'Drankflessen < 1/2 liter'
+object3_id = 2 # Object ID of: Plastic folies of stukken daarvan 2.5 - 50 cm
+object3_name = 'Plastic folies of stukken daarvan 2.5 - 50 cm'
+object4_id = 3 # Object ID of: Snoep snack en chips verpakkingen
+object4_name = 'Snoep snack en chips verpakkingen'
+object5_id = 4 # Object ID of: Voedselverpakkingen
+object5_name = 'Voedselverpakkingen'
 
 
 #Functions#-------------------------------------------------------
