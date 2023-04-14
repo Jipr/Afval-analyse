@@ -22,8 +22,8 @@ value = cell.value
 print("Value is:", value)
 sheet_number = int(value + 1)
 
-LINE_START = sv.Point(320, 0)
-LINE_END = sv.Point(320, 480)
+LINE_START = sv.Point(0, 675)
+LINE_END = sv.Point(1080, 657)
 
 #Objects ID's
 object1_id = 0 # Object ID of: Drankblikjes
@@ -97,11 +97,11 @@ def main():
     object4 = object_line_counter(object4_id, line_counter4)
     object5 = object_line_counter(object5_id, line_counter5)
 
-    model = YOLO("yolov8l.pt") #Load YOLOv8 model 
+    model = YOLO("model_2023-04-13_1547/best.pt") #Load YOLOv8 model 
 
 
 
-    for result in model.track(source=0, show=True, stream=True, agnostic_nms=True):
+    for result in model.track(source="C:/Users/Jip Rasenberg/Noria/Noria Internship - Jip Rasenberg/2. Working Folder/7. Data/2. Video data/4-3/Afgesneden/VID_20230406_131902~3.mp4", show=True, stream=True, agnostic_nms=True):
         
         frame = result.orig_img
 
@@ -126,11 +126,11 @@ def main():
         line_annotator.annotate(frame=frame, line_counter=line_counter)
 
 
-        print('object1_in',object1_in, 'object1_out',object1_out)
-        print('object2_in',object2_in, 'object2_out',object2_out)
-        print('object3_in',object3_in, 'object3_out',object3_out)
-        print('object4_in',object4_in, 'object4_out',object4_out)
-        print('object5_in',object5_in, 'object5_out',object5_out)
+        #print('object1_in',object1_in, 'object1_out',object1_out)
+        #print('object2_in',object2_in, 'object2_out',object2_out)
+        #print('object3_in',object3_in, 'object3_out',object3_out)
+        #print('object4_in',object4_in, 'object4_out',object4_out)
+        #print('object5_in',object5_in, 'object5_out',object5_out)
 
         cv2.imshow("yolov8", frame)
 
