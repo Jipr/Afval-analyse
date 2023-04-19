@@ -107,7 +107,6 @@ def main():
 
         #Detect al objects-----------------------------------------
         detections = sv.Detections.from_yolov8(result) #Get object detections from result
-        detections = detections[detections.class_id != 0] #Dont show first ID class human (Delete)
         if result.boxes.id is not None: #If nothing is detected in frame
             detections.tracker_id = result.boxes.id.cpu().numpy().astype(int) 
         labels = create_labels(model,detections) #Create labels  
