@@ -1,6 +1,6 @@
 '''
 Author: Jip Rasenberg
-Date: 30-3-2023
+Date: 20-4-2023
 Graduation project: Afval analyse automatisatie
 Company: Noria
 
@@ -53,7 +53,7 @@ global object3_in
 global object4_in
 global object5_in
 
-#Save video
+#Save video--------------------------------------------------------
 video = cv2.VideoCapture(video_file_name)
 frame_width = int(video.get(3))
 frame_height = int(video.get(4))
