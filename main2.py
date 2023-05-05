@@ -16,7 +16,8 @@ from datetime import date
 #Variables to change----------------------------------------------
 video_file_name = "VID_20230406_143256~3.mp4"
 modelPath = "runs/detect/train12/weights/best.pt"
-
+confidence = 0.6 #Object confidence threshold for detection
+IoU = 0.7 #Intersection over union (IoU) threshold for NMS
 
 #Global variables#------------------------------------------------
 xlrd.xlsx.ensure_elementtree_imported(False, None)
@@ -135,7 +136,7 @@ def main():
         model.names[4] = 'Snoep verpakkingen'
         model.names[5] = 'Voedselverpakkingen'
 
-        for result in model.track(source=video_file_name, show=True, stream=True, agnostic_nms=True):
+        for result in model.track(source=video_file_name, show=True, stream=True, agnostic_nms=True, conf=confidence, iou=IoU):
 
             frame = result.orig_img
 
