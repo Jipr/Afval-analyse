@@ -15,7 +15,7 @@ from datetime import date
 
 #Variables to change----------------------------------------------
 video_file_name = "VID_20230406_143256~3.mp4"
-
+modelPath = "runs/detect/train12/weights/best.pt"
 
 
 #Global variables#------------------------------------------------
@@ -39,19 +39,21 @@ object1_id = 0 # Object ID of: Drankblikjes
 object1_name = 'Drankblikjes'
 object2_id = 1 # Object ID of: Drankflessen < 1/2 liter
 object2_name = 'Drankflessen < 1/2 liter'
-object3_id = 2 # Object ID of: Plastic folies of stukken daarvan 2.5 - 50 cm
+object3_id = 3 # Object ID of: Plastic folies of stukken daarvan 2.5 - 50 cm
 object3_name = 'Plastic folies of stukken daarvan 2.5 - 50 cm'
-object4_id = 3 # Object ID of: Snoep snack en chips verpakkingen
+object4_id = 4 # Object ID of: Snoep snack en chips verpakkingen
 object4_name = 'Snoep snack en chips verpakkingen'
-object5_id = 4 # Object ID of: Voedselverpakkingen
+object5_id = 5 # Object ID of: Voedselverpakkingen
 object5_name = 'Voedselverpakkingen'
-
+object6_id = 2 # Object ID of: Ondefinieerbare stukjes piepschuim 2.5- 50 cm
+object6_name = 'Ondefinieerbare stukjes piepschuim 2.5- 50 cm'
 
 global object1_in
 global object2_in
 global object3_in
 global object4_in
 global object5_in
+global object6_in
 
 #Save video--------------------------------------------------------
 video = cv2.VideoCapture(video_file_name)
@@ -61,9 +63,11 @@ size = (frame_width, frame_height)
 # Below VideoWriter object will create a frame of above defined The output is stored in BatchNumber'x' file.
 video_result = cv2.VideoWriter(f'BatchNumber{sheet_number}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, size)
 
+
+
 #Functions#-------------------------------------------------------
-def commit_to_dataBase(object1_count,object2_count,object3_count,object4_count,object5_count):
-    f = pd.DataFrame([[object1_count], [object2_count], [object3_count], [object4_count], [object5_count]], index=[object1_name, object2_name, object3_name, object4_name, object5_name], columns=['Amount'])
+def commit_to_dataBase(object1_count,object2_count,object3_count,object4_count,object5_count,object6_count):
+    f = pd.DataFrame([[object1_count], [object2_count], [object3_count], [object4_count], [object5_count], [object6_count]], index=[object1_name, object2_name, object3_name, object4_name, object5_name, object6_name], columns=['Amount'])
     with pd.ExcelWriter('OSPAR_Test.xlsx', engine="openpyxl", mode='a') as writer:  
         f.at[object1_name, 'Sheet number'] = sheet_number
         f.at[object1_name, 'Video name'] = video_file_name
@@ -110,6 +114,7 @@ def main():
         line_counter3 = sv.LineZone(start=LINE_START, end=LINE_END)
         line_counter4 = sv.LineZone(start=LINE_START, end=LINE_END)
         line_counter5 = sv.LineZone(start=LINE_START, end=LINE_END)
+        line_counter6 = sv.LineZone(start=LINE_START, end=LINE_END)
 
         line_annotator = sv.LineZoneAnnotator(thickness=2, text_thickness=1, text_scale=0.5)
         box_annotator = sv.BoxAnnotator(thickness=2,text_thickness=1,text_scale=0.5)
@@ -120,10 +125,15 @@ def main():
         object3 = object_line_counter(object3_id, line_counter3)
         object4 = object_line_counter(object4_id, line_counter4)
         object5 = object_line_counter(object5_id, line_counter5)
+        object6 = object_line_counter(object6_id, line_counter6)
 
-        model = YOLO("model_2023-04-13_1547/best.pt") #Load YOLOv8 model
-
-
+        model = YOLO(modelPath) #Load YOLOv8 model
+        model.names[0] = 'Drankblikjes'
+        model.names[1] = 'Drankflessen'
+        model.names[2] = 'Piepschuim'
+        model.names[3] = 'Plastic folies'
+        model.names[4] = 'Snoep verpakkingen'
+        model.names[5] = 'Voedselverpakkingen'
 
         for result in model.track(source=video_file_name, show=True, stream=True, agnostic_nms=True):
 
@@ -141,6 +151,7 @@ def main():
             object3_in,object3_out = object3.detections(result)
             object4_in,object4_out = object4.detections(result)
             object5_in,object5_out = object5.detections(result)
+            object6_in,object6_out = object6.detections(result)
 
             #Show boxes and line counter--------------------------------
             frame = box_annotator.annotate(scene=frame, detections=detections, labels=labels)
@@ -148,12 +159,6 @@ def main():
             line_counter.trigger(detections=detections)
             line_annotator.annotate(frame=frame, line_counter=line_counter)
 
-
-            #print('object1_in',object1_in, 'object1_out',object1_out)
-            #print('object2_in',object2_in, 'object2_out',object2_out)
-            #print('object3_in',object3_in, 'object3_out',object3_out)
-            #print('object4_in',object4_in, 'object4_out',object4_out)
-            #print('object5_in',object5_in, 'object5_out',object5_out)
             video_result.write(frame) #Write the frame into the file BatchNumber'x' file.
             small = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
             cv2.imshow("yolov8", small)
@@ -162,7 +167,7 @@ def main():
                 cv2.destroyAllWindows()
                 break
     finally: #If video is finished, or ESC is pressed, the counters are uploaded to the excel file with sheet name Sheet{sheet_number}
-        commit_to_dataBase(object1_in, object2_in, object3_in, object4_in, object5_in)
+        commit_to_dataBase(object1_in, object2_in, object3_in, object4_in, object5_in, object6_in)
         video_result.release()
         print("The video, and counters are successfully saved")
 

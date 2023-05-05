@@ -1,7 +1,6 @@
-
-path: C:\Users\Jip Rasenberg\Noria\Noria Internship - Jip Rasenberg\2. Working Folder\5. Code\1. Repository\Afval-analyse\Drijfvuil detectie.v1i.yolov8 #dataset root dir
-train: train\images # train images (relative to 'path')
-val: valid\ímages # valid images (relative to 'path')
+path: C:/Users/Noria Office/Jip/Afval-analyse-OD/Drijfvuil detectie.v2i.yolov8/ #dataset root dir
+train: train/images # train images (relative to 'path')
+val: valid/images # valid images (relative to 'path')
 
 #Classes
 names:
