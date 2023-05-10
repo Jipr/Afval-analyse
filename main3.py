@@ -7,15 +7,12 @@ Company: Noria
 '''
 #Libraries#-------------------------------------------------------
 import cv2
-import pandas as pd
-import xlrd
 from ultralytics import YOLO
 import supervision as sv
-from datetime import date
 
 #Variables to change----------------------------------------------
-img1 = cv2.imread('/path_to_image/messi5.jpg',0)
-img2 = cv2.imread('/path_to_image/messi5.jpg',0)
+img1 = cv2.imread('Images\VID_20230406_141107~2_000062.jpg')
+img2 = cv2.imread('Images\VID_20230406_131902~2_000027.jpg')
 inputs = [img1, img2]  # list of numpy arrays
 modelPath = "runs/detect/train12/weights/best.pt"
 
@@ -58,7 +55,7 @@ def main(counter):
         #Show boxes and line counter--------------------------------
         frame = box_annotator.annotate(scene=result, detections=detections, labels=labels)
         # Filename
-        filename = f'Sheet{counter}'
+        filename = f'image{counter}'
         cv2.imwrite(filename, frame)
         counter += 1
 
