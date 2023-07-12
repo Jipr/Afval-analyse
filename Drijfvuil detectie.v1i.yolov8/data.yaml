@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 5
+names: ['Drankblikjes', 'Drankflessen - 1-2 liter', 'Plastic folies of stukken daarvan 2.5- 50 cm', 'Snoep snack en chips verpakkingen', 'Voedselverpakkingen']
+
+roboflow:
+  workspace: automatisatie-afval-analyse
+  project: drijfvuil-detectie
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/automatisatie-afval-analyse/drijfvuil-detectie/dataset/1

@@ -1,0 +1,12 @@
+path: C:/Users/Noria Office/Jip/Afval-analyse-OD/Drijfvuil detectie.v2i.yolov8/ #dataset root dir
+train: train/images # train images (relative to 'path')
+val: valid/images # valid images (relative to 'path')
+
+#Classes
+names:
+    0: Drankblikjes
+    1: Drankflessen < 1/2 liter
+    2: Plastic folies of stukken daarvan 2.5 - 50 cm
+    3: Snoep snack en chips verpakkingen
+    4: Voedselverpakkingen
+    5: Ondefinieerbare stukjes piepschuim 2.5- 50 cm
